@@ -17,3 +17,6 @@ build/
 
 *pycache*
 data/
+donotshare.md
+temp.py
+
