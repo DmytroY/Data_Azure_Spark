@@ -8,5 +8,5 @@ class TestHotelsJob:
             ["id", "name", "age"],
         ).toPandas()
 
-        reseived_data = run_job(spark_session, config={"app_name": "M06_SPARKBASICS_PYTHON_AZURE",}).toPandas()
-        pd.testing.assert_frame_equal(reseived_data, expected_data, check_dtype=False)
+        received_data = run_job(spark_session, config={"app_name": "M06_SPARKBASICS_PYTHON_AZURE",}).toPandas()
+        pd.testing.assert_frame_equal(received_data, expected_data, check_dtype=False)

@@ -1,3 +1,4 @@
+import os, sys
 import json
 import argparse
 import importlib
@@ -12,6 +13,10 @@ def _parse_arguments():
 
 def main():
     """ Main function excecuted by spark-submit command"""
+
+    # add project root folder to sys.path to avoid modules import error
+    sys.path.append(os.getcwd())
+
     args = _parse_arguments()
 
     with open("src/config.json", "r") as config_file:

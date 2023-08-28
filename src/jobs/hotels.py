@@ -1,6 +1,6 @@
 from pyspark.sql.functions import when, column
-# from src.shared.udfs import coordinates, geohash
-from shared.udfs import get_coordinates, get_geohash4
+# from shared.udfs import get_coordinates_udf, get_geohash4
+from src.shared.udfs import get_coordinates_udf, get_geohash4_udf
 
 
 def _extract(spark, config):
@@ -31,14 +31,14 @@ def run_job(spark, config):
 
     # Update where Latitudes/Longitudes are absent
     print("======== updating Latitude/Longitude")
-    df_upd = df.withColumn('Latitude', when(df.Latitude.cast("int").isNull(), get_coordinates(df.Country, df.City, df.Address)[0]) \
+    df_upd = df.withColumn('Latitude', when(df.Latitude.cast("int").isNull(), get_coordinates_udf(df.Country, df.City, df.Address)[0]) \
             .otherwise(df.Latitude)) \
-        .withColumn('Longitude', when(df.Longitude.cast("int").isNull(), get_coordinates(df.Country, df.City, df.Address)[1]) \
+        .withColumn('Longitude', when(df.Longitude.cast("int").isNull(), get_coordinates_udf(df.Country, df.City, df.Address)[1]) \
             .otherwise(df.Longitude))
     
     # add column with geohash
     print("======== adding GEOHASH")
-    df_hash = df_upd.withColumn("geohash", get_geohash4(df_upd.Latitude, df_upd.Longitude))
+    df_hash = df_upd.withColumn("geohash", get_geohash4_udf(df_upd.Latitude, df_upd.Longitude))
 
     print(df_hash.show(20))
 
