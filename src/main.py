@@ -16,6 +16,9 @@ def main():
 
     # add project root folder to sys.path to avoid modules import error
     sys.path.append(os.getcwd())
+    # print("======= $PATH =====")
+    # for item in sys.path:
+    #     print(item)
 
     args = _parse_arguments()
 
