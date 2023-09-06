@@ -1,5 +1,32 @@
-from pyspark.sql.functions import when, col, broadcast
-from src.shared.udfs import get_latitude_udf, get_longitude_udf, get_country_udf, get_city_udf, get_distance_udf, get_geohash4_udf
+from pyspark.sql.functions import when, broadcast
+from src.shared.udfs import get_geohash4_udf
+from src.shared.udfs import get_latitude_udf, get_longitude_udf
+
+
+def _extract_hotel(spark, config):
+    """ Load data: hotels, returns dataframe """
+    # return(spark.read.option("header", True).csv(f"{config.get('source_data_path')}/hotels"))
+    return(spark.read.option("header", True).csv(f"{config.get('samples_data_path')}/hotel_sample"))
+
+def _extract_weather(spark, config):
+    """ Load data: weather, returns dataframe """
+    # return(spark.read.option("header", True).parquet(f"{config.get('source_data_path')}/weather"))
+    return(spark.read.option("header", True).csv(f"{config.get('samples_data_path')}/weather_sample"))
+
+def _update_coordinates(df):
+    """ Update hotels Latitudes/Longitudes if absent """
+    return df.withColumn('Latitude', when(df.Latitude.cast("int").isNull(),
+                                        get_latitude_udf(df.Country, df.City, df.Address)) \
+                                         .otherwise(df.Latitude)) \
+            .withColumn('Longitude', when(df.Longitude.cast("int").isNull(),
+                                      get_longitude_udf(df.Country, df.City, df.Address)) \
+                                        .otherwise(df.Longitude))
+
+def _hash_hotel(df):
+    return df.withColumn('h_geohash', get_geohash4_udf(df.Latitude, df.Longitude))
+
+def _hash_weather(df):
+    return df.withColumn('w_geohash', get_geohash4_udf(df.lat, df.lng))
 
 
 def run_job(spark, config):
@@ -8,89 +35,24 @@ def run_job(spark, config):
     Generate geohash by Latitude & Longitude using one of geohash libraries (like geohash-java) with 4-characters length in extra column.
     Left join weather and hotels data by generated 4-characters geohash (avoid data multiplication and make you job idempotent)"""
 
-    # spark.udf.register("get_coordinates_udf", get_coordinates_udf)
+    # hotels:load, update Latitudes/Longitudes, add gephash
+    h = _hash_hotel(_update_coordinates(_extract_hotel(spark, config)))
 
-    # ======  extract data ==========
-    # df_h = spark.read.option("header", True).csv(f"{config.get('source_data_path')}/hotels")
-    # df_w = spark.read.option("header", True).parquet(f"{config.get('source_data_path')}/weather")
+    # weather:load, add gephash
+    w = _hash_weather(_extract_weather(spark, config))
 
-    h = spark.read.option("header", True).csv(f"{config.get('samples_data_path')}/hotel_sample")
-    w = spark.read.option("header", True).csv(f"{config.get('samples_data_path')}/weather_sample")
-
-
-    # ======  fix incorrect data ===========
-    # Update hotels if Latitudes/Longitudes are absent
-    h = h.withColumn('Latitude', when(h.Latitude.cast("int").isNull(),
-                                      get_latitude_udf(h.Country, h.City, h.Address)) \
-                                        .otherwise(h.Latitude)) \
-        .withColumn('Longitude', when(h.Longitude.cast("int").isNull(),
-                                      get_longitude_udf(h.Country, h.City, h.Address)) \
-                                        .otherwise(h.Longitude))
-    
-    print("======== check that coordinates are fixed ===========")
-    h.filter(h.Name == 'Palomar Washington Dc, A Kimpton Hotel').show()
-
-    # save to check in csv
-    h.coalesce(1) \
-        .write.option("header",True) \
-            .mode("overwrite") \
-                .csv(f"{config.get('output_data_path')}/hotel_sample_allcoord")
-    
-    # find and fix if hotel City or Country does not correspond to coordinates
-    # from hotel data create pivot table with Country, City
-    # and add calculated by Opencage API Latitude and longitude of city
-    p = h.select(col("Country").alias("country"), col("City").alias("city"), ).distinct()
-    p = p.withColumn('lat', get_latitude_udf(p.country, p.city)) \
-        .withColumn('lon', get_longitude_udf(p.country, p.city))
-    
-    print("======== check p dataframe ===========")
-    p.show()
-    
-#============
-    # join h (hotels) and p (correct coordinates of city centres)
-    h = h.join(broadcast(p), (h.Country == p.country) & (h.City == p.city), "left") \
-        .select(h.Id, h.Name, h.Country, h.City, h.Address, h.Latitude, h.Longitude, p.lat, p.lon)
-
-    # if distance between hotel coordinates and city center > 50 km
-    # then city and country in hotel adress in wrong
-    # update data with correct country and city
-    h = h.withColumn("Country", when( get_distance_udf(h.Latitude, h.Longitude, h.lat, h.lon) > 50,
-                                     get_country_udf(h.Latitude, h.Longitude)). \
-                                        otherwise(h.Country)) \
-        .withColumn("City", when( get_distance_udf(h.Latitude, h.Longitude, h.lat, h.lon) > 50,
-                                 get_city_udf(h.Latitude, h.Longitude)) \
-                                    .otherwise(h.City))
-    droplist =["lat", "lon"]
-    h = h.select([col for col in h.columns if col not in droplist])
-    h.show()
-#===============
-
-    # ======= add geohash =======
-    h = h.withColumn('h_geohash', get_geohash4_udf(h.Latitude, h.Longitude))
-    h.coalesce(1) \
-        .write.option("header",True) \
-            .mode("overwrite") \
-                .csv(f"{config.get('output_data_path')}/hotel_sample_hash")
-
-    w = w.withColumn('w_geohash', get_geohash4_udf(w.lat, w.lng))
-    w.coalesce(1) \
-        .write.option("header",True) \
-            .mode("overwrite") \
-                .csv(f"{config.get('output_data_path')}/weather_sample_hash")
-    
-    print(f"===== hotels has {h.count()} records")
-    print(f"===== weather has {w.count()} records")
-    # print("====== join")
-
-    # ======= join on geohash =========
+     # join on geohash
     result = w.join(broadcast(h), h.h_geohash == w.w_geohash, "left")
 
-    # ======= load =======
+    # ======= load sample data =======
     result.coalesce(1) \
         .write.option("header",True) \
             .mode("overwrite") \
                 .csv(f"{config.get('output_data_path')}/result")
-    h.show()
-    w.show()
-    result.show()
 
+    # # # ===== load =======
+    # # result.write.option("header",True) \
+    # #     .mode("overwrite") \
+    # #         .parquet(f"{config.get('output_data_path')}/result")
+
+    print(f"===== job done, join result contains {result.count()} records")

@@ -9,3 +9,4 @@ pandas>=2.0.3
 pytest-spark>=0.6.0
 opencage>=2.3.0
 geohash2>=1.1
+pytest-mock>=3.11.1

@@ -20,4 +20,5 @@ data/
 donotshare.md
 temp.py
 experiments_notebook.ipynb
-
+job_extended.py
+test_data_output/*
