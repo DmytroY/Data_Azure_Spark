@@ -14,8 +14,8 @@ class TestJob:
              ("970662608900", "Palomar Washington Dc, A Kimpton Hotel", "US", "Washington",	"2121 P St N W"	, "", "")],
             ["Id",	"Name",	"Country",	"City",	"Address",	"Latitude",	"Longitude"]
         )
-        mocker.patch.object(job, "_extract_hotel")
-        job._extract_hotel.return_value = test_data_h
+        mocker.patch.object(job, "_extract_hotels")
+        job._extract_hotels.return_value = test_data_h
 
         test_data_w = spark_session.createDataFrame(
             [(8.18181,	45.0767,	74.9,	23.8,	"2017-08-15",	"2017",	"8",	"15"),
