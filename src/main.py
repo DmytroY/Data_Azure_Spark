@@ -11,13 +11,10 @@ def _parse_arguments():
     return parser.parse_args()
 
 def main():
-    """ Main function excecuted by spark-submit command"""
+    """ Main function excecuted by 'spark-submit src/main.py --job job' command"""
 
     # add project root folder to sys.path to avoid modules import error
     sys.path.append(os.getcwd())
-    # print("======= $PATH =====")
-    # for item in sys.path:
-    #     print(item)
 
     args = _parse_arguments()
 
@@ -27,8 +24,6 @@ def main():
     spark = SparkSession.builder.appName(config.get("app_name")).getOrCreate()
 
     job_path = f"jobs.{args.job}"
-    print("========== job_path:", job_path)
-
     job_module = importlib.import_module(job_path)
     job_module.run_job(spark, config)
 
