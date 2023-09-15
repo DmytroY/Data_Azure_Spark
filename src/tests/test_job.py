@@ -1,16 +1,20 @@
+""" functional test for job.py by pytest """
 import os
 import shutil
 import src.jobs.job as job
 
 class TestJob:
+    """ test job.py """
     def test_run_job(self, spark_session, mocker):
+        """ mock extracting data from file then run job with this test data
+        successfull job shoul create file with resulting data - check it"""
         test_config = {"output_data_path": "test_data_output"}
 
         if os.path.exists(test_config.get("output_data_path")):
             shutil.rmtree(test_config.get("output_data_path"))
 
         test_data_h = spark_session.createDataFrame(
-            [("2508260900870", "UNA Maison Milano",	"IT", "Milan", "Via Mazzini 4 Milan City Center 20123 Milan Italy",	"45.4633289", "9.1884242"),
+            [("2508260900870","UNA Maison Milano","IT", "Milan", "Via Mazzini 4",	"45.4633289", "9.1884242"),
              ("970662608900", "Palomar Washington Dc, A Kimpton Hotel", "US", "Washington",	"2121 P St N W"	, "", "")],
             ["Id",	"Name",	"Country",	"City",	"Address",	"Latitude",	"Longitude"]
         )

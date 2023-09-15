@@ -1,19 +1,20 @@
-from src.shared.udfs import get_geohash4_udf
-
-def _load_one_csv(config, df, filename):
+"""
+Preparing sample data for fast testrun of spark job
+"""
+def _load_one_csv(config, df, filename): # pylint: disable=invalid-name
     """ Save data to csv file """
     df.coalesce(1).write.option("header",True).mode("overwrite") \
         .csv(f"{config.get('output_samples_path')}/{filename}"
     )
 
-def _load_parquet(config, df, filename):
+def _load_parquet(config, df, filename): # pylint: disable=invalid-name
     df.write.option("header",True).mode("overwrite") \
         .parquet(f"{config.get('output_samples_path')}/{filename}")
 
 def run_job(spark, config):
     """ sampling data for hotels with coordinates in Italy (Lat/Lon range (45, 8)-(46, 10))
       + US, Washington """
-    df_h = spark.read.option("header", True).csv(f"{config.get('source_data_path')}/hotels")  
+    df_h = spark.read.option("header", True).csv(f"{config.get('source_data_path')}/hotels")
 
     # df_h_sample = df_h.filter(df_h.Latitude.cast("int").isNull())
     df_h_sample1 = df_h \
@@ -21,11 +22,11 @@ def run_job(spark, config):
         .filter(df_h.Latitude < 46.0) \
         .filter(df_h.Longitude > 8.0) \
         .filter(df_h.Longitude < 10.0)
-    
+
     df_h_sample2 = df_h \
         .filter(df_h.Country == "US") \
         .filter(df_h.City == "Washington")
-    
+
     df_h_sample = df_h_sample1.union(df_h_sample2).distinct()
     _load_one_csv(config, df_h_sample, "hotels")
     print(f"========= hotels sampling done. It contains {df_h_sample.count()} records")

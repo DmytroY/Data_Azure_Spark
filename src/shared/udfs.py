@@ -3,7 +3,7 @@ import os
 import time
 import geohash2
 from pyspark.sql.functions import udf
-from pyspark.sql.types import StringType, IntegerType
+from pyspark.sql.types import StringType
 from opencage.geocoder import OpenCageGeocode
 
 
@@ -12,31 +12,31 @@ def _get_latitude(country, city, address='') -> str:
     Powered by https://opencagedata.com/ API.
     Usage example: _get_latitude("US", "Lavonia", "890 Ross Pl")
     returns: '34.4454386'  """
-    # we use free opencage account, only 1 API request/sec is alloved 
+    # we use free opencage account, only 1 API request/sec is alloved
     time.sleep(1)
 
     geocoder = OpenCageGeocode(os.getenv('OPENCAGE_API_KEY'))
     adr = address + ', ' + city + ', ' + country
     results = geocoder.geocode(adr)
     if results:
-        return(results[0]['geometry']['lat'])
-    return(0)
+        return results[0]['geometry']['lat']
+    return 0
 
 def _get_longitude(country, city, address='') -> str:
     """ get longitude by address 
     Powered by https://opencagedata.com/ API.
     Usage example: _get_latitude("US", "Lavonia", "890 Ross Pl")
-    returns: '-83.1197032'    """  
+    returns: '-83.1197032'    """
 
-    # we use free opencage account, only 1 API request/sec is alloved 
+    # we use free opencage account, only 1 API request/sec is alloved
     time.sleep(1)
 
     geocoder = OpenCageGeocode(os.getenv('OPENCAGE_API_KEY'))
     adr = address + ', ' + city + ', ' + country
     results = geocoder.geocode(adr)
     if results:
-        return(results[0]['geometry']['lng'])
-    return(0)
+        return results[0]['geometry']['lng']
+    return 0
 
 def _get_geohash4(lat=0, lon=0) -> str:
     """ get 4 first simbols of geohash by coordinates. Powered by geohash2 PyPi libriary
