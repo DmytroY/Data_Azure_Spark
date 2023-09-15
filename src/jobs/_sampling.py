@@ -38,8 +38,8 @@ def run_job(spark, config):
         .filter(df_w.lng > 8.0) \
         .filter(df_w.lng < 10.0) \
         .filter(df_w.year == 2017) \
-        .filter(df_w.month == 8)
-        #.filter(df_w.day == 5)
+        .filter(df_w.month == 8) \
+        .filter(df_w.day == 5)
 
     _load_parquet(config, df_w_sample, "weather")
     print(f"========= weather sampling done, it contains {df_w_sample.count()} records")

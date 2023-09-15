@@ -1,4 +1,3 @@
-# from shared.udfs import get_coordinates, get_geohash4
 from src.shared.udfs import _get_latitude, _get_longitude, _get_geohash4
 
 class TestUdfGetLatitude:
