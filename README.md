@@ -35,7 +35,7 @@ do not forget to destroy infrastructure with "terraform destroy" after completin
 
 
 
-==============================================
+================= ORIGINAL README =============================
 * Setup needed requirements into your env `pip install -r requirements.txt`
 * Add your code in `src/main/`
 * Test your code with `src/tests/`
