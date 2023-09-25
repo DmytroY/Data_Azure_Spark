@@ -31,7 +31,7 @@ def run_job(spark, config):
     _load_one_csv(config, df_h_sample, "hotels")
     print(f"========= hotels sampling done. It contains {df_h_sample.count()} records")
 
-    # sampling data for weather with coordinates in range (45, 8)-(46, 10) for year 2017, month 8
+    # sampling data for weather with coordinates in range (45, 8)-(46, 10) for year 2017, month 8, day 5
     df_w = spark.read.option("header", True).parquet(f"{config.get('source_data_path')}/weather")
     df_w_sample = df_w \
         .filter(df_w.lat > 45.0) \

@@ -50,8 +50,12 @@ COPY ./dist/sparkbasics-*.egg /opt/
 RUN chmod +x /opt/*.sh
 
 RUN apk update && \
-    apk add --no-cache python3 py3-pip && \
-    pip3 install --upgrade pip setuptools pygeohash requests && \
+    apk add --no-cache python3 py3-pip
+
+RUN pip3 install --upgrade pip
+
+# pip3 install --upgrade pip setuptools pygeohash requests && \
+RUN pip3 install --upgrade setuptools pyspark opencage geohash2 && \
     # Removed the .cache to save space
     rm -rf /var/cache/apk/*
 

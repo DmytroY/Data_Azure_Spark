@@ -38,10 +38,10 @@ def run_job(spark, config):
     extract weather, add geohash.
     Left join weather and hotels data by generated 4-characters geohash.
     Load result"""
-    h_df = _update_coordinates(_extract_hotels(spark, config, "csv", "hotel"))  # pylint: disable=too-many-function-args
+    h_df = _update_coordinates(_extract_hotels(spark, config)) 
     h_df = _geohash(h_df, "h_geohash", "Latitude", "Longitude")
 
-    w_df = _extract_weather(spark, config, "parquet", "weather")  # pylint: disable=too-many-function-args
+    w_df = _extract_weather(spark, config)
     w_df = _geohash(w_df,"w_geohash","lat","lng")
 
     result = w_df.join(broadcast(h_df), h_df.h_geohash == w_df.w_geohash, "left")
