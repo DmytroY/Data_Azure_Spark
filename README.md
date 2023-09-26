@@ -31,8 +31,18 @@ terraform init
 terraform plan -out terraform.plan
 terraform apply terraform.plan
 ```
-do not forget to destroy infrastructure with "terraform destroy" after completing spark job!
+When terraform ask for prefix use "yakovd", either data in config.json should be changed respectively.
 
+Do not forget to destroy infrastructure after completing spark job!
+
+## Build
+python3 setup.py build bdist_egg
+
+## Docker
+2 environment variables shoul be assigned for run: OPENCAGE_API_KEY and AZ_STORAGE_ACCES_KEY
+
+to build docker image: docker build -t sparkbasics . -f docker/Dockerfile
+Environment variable can be passed to docker image at run: docker run -it -e MYVAR="This is myvar" {dockerimagename}
 
 
 ================= ORIGINAL README =============================
