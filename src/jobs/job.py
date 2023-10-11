@@ -33,26 +33,26 @@ def _load(config, data_frame, filename):
     data_frame.write.option("header",True).mode("overwrite") \
         .parquet(f"{config.get('output_data_path')}/{filename}")
 
-# def run_job(spark, config):
-#     """ extract hotels, update Latitudes/Longitudes if is absent, add geohash.
-#     extract weather, add geohash.
-#     Left join weather and hotels data by generated 4-characters geohash.
-#     Load result"""
-#     h_df = _update_coordinates(_extract_hotels(spark, config)) 
-#     h_df = _geohash(h_df, "h_geohash", "Latitude", "Longitude")
-
-#     w_df = _extract_weather(spark, config)
-#     w_df = _geohash(w_df,"w_geohash","lat","lng")
-
-#     result = w_df.join(broadcast(h_df), h_df.h_geohash == w_df.w_geohash, "left")
-#     _load(config, result, "result")
-#     print(f"===== job done, join result contains {result.count()} records")
-
 def run_job(spark, config):
-    """ job to test read-write azure"""
-    h_df = _extract_hotels(spark, config)
-    print(f"===== hotels readed, it contains {h_df.count()} records")
+    """ extract hotels, update Latitudes/Longitudes if is absent, add geohash.
+    extract weather, add geohash.
+    Left join weather and hotels data by generated 4-characters geohash.
+    Load result"""
+    h_df = _update_coordinates(_extract_hotels(spark, config)) 
+    h_df = _geohash(h_df, "h_geohash", "Latitude", "Longitude")
+
     w_df = _extract_weather(spark, config)
-    print(f"===== weather readed, it contains {w_df.count()} records")
-    _load(config, h_df, "result")
-    print(f"===== job done, result wrote")
+    w_df = _geohash(w_df,"w_geohash","lat","lng")
+
+    result = w_df.join(broadcast(h_df), h_df.h_geohash == w_df.w_geohash, "left")
+    _load(config, result, "result")
+    print(f"===== job done, join result contains {result.count()} records")
+
+# def run_job(spark, config):
+#     """ job to test read-write azure"""
+#     h_df = _extract_hotels(spark, config)
+#     print(f"===== hotels readed, it contains {h_df.count()} records")
+#     w_df = _extract_weather(spark, config)
+#     print(f"===== weather readed, it contains {w_df.count()} records")
+#     _load(config, h_df, "result")
+#     print(f"===== job done, result wrote")
