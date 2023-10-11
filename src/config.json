@@ -1,6 +1,6 @@
 {
   "app_name": "M06_SPARKBASICS_PYTHON_AZURE",
-  "source_data_path": "wasbs://data@styakovdwesteurope.blob.core.windows.net",
-  "output_data_path": "wasbs://data@styakovdwesteurope.blob.core.windows.net/output",
-  "storage_account_name": "styakovdwesteurope"
+  "source_data_path": "wasbs://data@styakovd1westeurope.blob.core.windows.net",
+  "output_data_path": "wasbs://data@styakovd1westeurope.blob.core.windows.net/output",
+  "storage_account_name": "styakovd1westeurope"
 }

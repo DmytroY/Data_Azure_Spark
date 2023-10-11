@@ -2,7 +2,7 @@
 terraform {
   backend "azurerm" {
     resource_group_name  = "tf-state-rg"
-    storage_account_name = "sa4tdyfstate"
+    storage_account_name = "sa4dytfstate"
     container_name       = "tfstate"
     key                  = "terraform.tfstate"
   }
@@ -19,9 +19,9 @@ resource "azurerm_resource_group" "bdcc" {
   name = "rg-${var.ENV}-${var.LOCATION}"
   location = var.LOCATION
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 
   tags = {
     region = var.BDCC_REGION
@@ -45,9 +45,9 @@ resource "azurerm_storage_account" "bdcc" {
     ip_rules = values(var.IP_RULES)
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 
   tags = {
     region = var.BDCC_REGION
@@ -62,42 +62,42 @@ resource "azurerm_storage_data_lake_gen2_filesystem" "gen2_data" {
   name = "data"
   storage_account_id = azurerm_storage_account.bdcc.id
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 }
 
 
-resource "azurerm_kubernetes_cluster" "bdcc" {
-  depends_on = [
-    azurerm_resource_group.bdcc]
+# resource "azurerm_kubernetes_cluster" "bdcc" {
+#   depends_on = [
+#     azurerm_resource_group.bdcc]
 
-  name                = "aks-${var.ENV}-${var.LOCATION}"
-  location            = azurerm_resource_group.bdcc.location
-  resource_group_name = azurerm_resource_group.bdcc.name
-  dns_prefix          = "bdcc${var.ENV}"
+#   name                = "aks-${var.ENV}-${var.LOCATION}"
+#   location            = azurerm_resource_group.bdcc.location
+#   resource_group_name = azurerm_resource_group.bdcc.name
+#   dns_prefix          = "bdcc${var.ENV}"
 
-  default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_D2_v2"
-  }
+#   default_node_pool {
+#     name       = "default"
+#     node_count = 1
+#     vm_size    = "Standard_D2_v2"
+#   }
 
-  identity {
-    type = "SystemAssigned"
-  }
+#   identity {
+#     type = "SystemAssigned"
+#   }
 
-  tags = {
-    region = var.BDCC_REGION
-    env = var.ENV
-  }
-}
+#   tags = {
+#     region = var.BDCC_REGION
+#     env = var.ENV
+#   }
+# }
 
-output "client_certificate" {
-  value = azurerm_kubernetes_cluster.bdcc.kube_config.0.client_certificate
-}
+# output "client_certificate" {
+#   value = azurerm_kubernetes_cluster.bdcc.kube_config.0.client_certificate
+# }
 
-output "kube_config" {
-  sensitive = true
-  value = azurerm_kubernetes_cluster.bdcc.kube_config_raw
-}
+# output "kube_config" {
+#   sensitive = true
+#   value = azurerm_kubernetes_cluster.bdcc.kube_config_raw
+# }

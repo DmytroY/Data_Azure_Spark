@@ -24,7 +24,8 @@ def main():
     spark = SparkSession.builder.appName(config.get("app_name")).getOrCreate()
 
     # configure spark for acces to storage account in Azure
-    spark.conf.set(f"fs.azure.account.key.{config.get('storage_account_name')}.blob.core.windows.net", {os.getenv('AZ_STORAGE_ACCES_KEY')})
+    # spark.conf.set(f"fs.azure.account.key.{config.get('storage_account_name')}.blob.core.windows.net", {os.getenv('AZ_STORAGE_ACCES_KEY')})
+    # spark.conf.set("fs.azure.account.key.styakovd1westeurope.blob.core.windows.net", "XBoGyDoaDIBAIKHa8J/reFtepsZbO6ddcoybdwzziqdc66WX0d29IvYvmN81j0LPP/pNk9rn6YzE+AStBRyDIA==")
 
     # # it was code for local run with "spark-submit src/main.py --job job"
     # args = _parse_arguments()
