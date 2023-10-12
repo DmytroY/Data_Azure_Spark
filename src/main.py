@@ -26,14 +26,14 @@ def main():
     # configure spark for acces to storage account in Azure
     # spark.conf.set(f"fs.azure.account.key.{config.get('storage_account_name')}.dfs.core.windows.net", {os.getenv('AZ_STORAGE_ACCES_KEY')})
    
-    # # it was code for local run with "spark-submit src/main.py --job job"
-    # args = _parse_arguments()
-    # job_path = f"jobs.{args.job}"
-    # print(" ====== job_path = jobs.", args.job)
-    # job_module = importlib.import_module(job_path)
+    # run with "spark-submit src/main.py --job job"
+    args = _parse_arguments()
+    job_path = f"jobs.{args.job}"
+    print(" ======== job_path = jobs.", args.job)
+    job_module = importlib.import_module(job_path)
 
-    # run with "spark-submit src/main.py"
-    job_module = importlib.import_module("jobs.job")
+    # # run with "spark-submit src/main.py"
+    # job_module = importlib.import_module("jobs.job")
     job_module.run_job(spark, config)
 
 

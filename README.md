@@ -104,5 +104,7 @@ spark-submit \
   --conf spark.kubernetes.container.image=<spark-image> \
   --conf spark.hadoop.fs.azure.account.key.<account>.dfs.core.windows.net=<key> \
   --packages org.apache.hadoop:hadoop-azure:3.2.0,com.microsoft.azure:azure-storage:8.6.3 \
-  src/main.py
+  --conf spark.kubernetes.driver.secretKeyRef.ENV_NAME=name:key
+  --conf spark.kubernetes.executor.secretKeyRef.ENV_NAME=name:key
+  src/main.py --job job
 ```
