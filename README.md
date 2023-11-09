@@ -69,15 +69,14 @@ where:
 We can access the data by such path:  
 `data_path = f"abfs://{container}>@{account}.dfs.core.windows.net"`
 
-
-![Screenshot. Access check - Pyspark console](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/Spark%20console%20check%20access%20data%20Azure%20storage.jpg)
+Access check - Pyspark console:
 
 ![Screenshot. Access check - Pyspark console](screenshots/Spark%20console%20check%20access%20data%20Azure%20storage.jpg)
 
 Remark.
 To simplify local test-run of spark job I use sample data created by src/jobs/_sampling.py script. Sample data has less size but same format as real data.The sample data uploaded to container "m06shortsampledata".
 
-[Screenshot. Azure containes structure](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/Azure%20containers%20with%20data.jpg)
+![Screenshot. Azure containes structure](screenshots/Azure%20containers%20with%20data.jpg)
 
 ## Opencage API using
 Some UDFS uses https://opencagedata.com/ API, to make it work we should register and obtain Opencage API key then assign environment variable (command for linux shell):
@@ -89,10 +88,9 @@ export OPENCAGE_API_KEY="< Opencage API key >"
 Do not forget to assign environment variable for OPENCAGE_API_KEY in advance.
 
 Run tests
-```
-pytest src/tests
-```
-[Screenshot. Pytest results](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/unit%20tests.jpg)
+`pytest src/tests`
+
+![Screenshot. Pytest results](screenshots/unit%20tests.jpg)
 
 ## Local run
 We will run our job localy on shortened sample data which we loaded to Azure storage container "m06shortsampledata"
@@ -121,14 +119,21 @@ where:
 **acc** - storage account name,   
 **key** - storage account key. 
 
-See screenshot of results:
-[Azure container before run](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/unit%20tests.jpg)
+Screenshot of Azure container before run:
 
-[Azure container after run](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/Azure%20container%20after%20run.jpg)
+![Azure container before run](screenshots/Azure%20container%20before%20run.jpg)
 
-[Azure container resulting parquet](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/Azure%20container%20after%20run_parquet.jpg)
+Azure container after run:
 
-[Check results in spark console](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/result.jpg)
+![Azure container after run](screenshots/Azure%20container%20after%20run.jpg)
+
+Resulting parquet:
+
+![Azure container resulting parquet](screenshots/Azure%20container%20after%20run_parquet.jpg)
+
+Check results in spark console:
+
+![Check results in spark console](screenshots/result.jpg)
 
 
 ## AKS
