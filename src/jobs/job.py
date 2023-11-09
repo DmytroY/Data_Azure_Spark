@@ -47,12 +47,3 @@ def run_job(spark, config):
     result = w_df.join(broadcast(h_df), h_df.h_geohash == w_df.w_geohash, "left")
     _load(config, result, "result")
     print(f"===== job done, join result contains {result.count()} records")
-
-# def run_job(spark, config):
-#     """ job to test read-write azure"""
-#     h_df = _extract_hotels(spark, config)
-#     print(f"===== hotels readed, it contains {h_df.count()} records")
-#     w_df = _extract_weather(spark, config)
-#     print(f"===== weather readed, it contains {w_df.count()} records")
-#     _load(config, h_df, "result")
-#     print(f"===== job done, result wrote")

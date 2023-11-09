@@ -12,28 +12,22 @@ def _parse_arguments():
 
 def main():
     """ Main function excecuted by 'spark-submit src/main.py --job job' command"""
-    print(" ====== main.py ======")
+
     # add project root folder to sys.path to avoid modules import error
     sys.path.append(os.getcwd())
 
-
-
+    # read configs
     with open("src/config.json", "r") as config_file:
         config = json.load(config_file)
 
     spark = SparkSession.builder.appName(config.get("app_name")).getOrCreate()
 
-    # configure spark for acces to storage account in Azure
-    # spark.conf.set(f"fs.azure.account.key.{config.get('storage_account_name')}.dfs.core.windows.net", {os.getenv('AZ_STORAGE_ACCES_KEY')})
-   
-    # run with "spark-submit src/main.py --job job"
+    # run with "spark-submit src/main.py --job python_file"
+    # python_file shoud contain run_job procedure
     args = _parse_arguments()
     job_path = f"jobs.{args.job}"
     print(" ======== job_path = jobs.", args.job)
     job_module = importlib.import_module(job_path)
-
-    # # run with "spark-submit src/main.py"
-    # job_module = importlib.import_module("jobs.job")
     job_module.run_job(spark, config)
 
 

@@ -1,4 +1,5 @@
 #Modify this docker for your needs
+
 FROM openjdk:8-alpine
 
 ARG SPARK_VERSION_ARG=3.1.2
@@ -60,7 +61,7 @@ RUN pip3 install --upgrade setuptools pyspark opencage geohash2 && \
     rm -rf /var/cache/apk/*
 
 WORKDIR /opt/spark/work-dir
-ENTRYPOINT [ "/opt/entrypoint.sh" ]
+ENTRYPOINT [ "/opt/entrypoint1.sh" ]
 
 # Specify the User that the actual main process will run as
 ARG spark_uid=185

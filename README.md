@@ -13,47 +13,50 @@ az login
 ```
 
 ## Terraform   
+Before run Terraform we should create and provide to Terraform some Azure storage container so Terraform can use it to save it's state.
 Create Azure Resource Group and Storage Account, get Storage Account key:
 ```
 az group create --name tf-state-rg \
   --location westeurope
 
-az storage account create --name sa4dytfstate \
+az storage account create --name sa451 \
   --location westeurope \
   --resource-group tf-state-rg
 
-az storage account keys list --account-name sa4dytfstate
+az storage account keys list --account-name sa451
 ```
-Use key from abow, create a container so Terraform can store the state management file:
+Use key from abow, create a storage container so Terraform can store the state management file:
 ```
-az storage container create --account-name sa4dytfstate \
+az storage container create --account-name sa451 \
   --name tfstate \
   --public-access off \
   --account-key <account-key>
 ```
-Initialize Terraform working directory, create an execution plan and save the plan to the file, run action plan
+
+When we will apply terraform plan it will ask us to provide state backend data, to avoid it and simplify our life let's add this information directly to main.tf
+```
+# Setup azurerm as a state backend
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "tf-state-rg"
+    storage_account_name = "sa451"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+  }
+}
+```
+Now we can initialize Terraform working directory, create an execution plan and save the plan to the file, run action plan
 ```
 cd terraform
 terraform init
 terraform plan -out terraform.plan
 terraform apply terraform.plan
 ```
-When terraform ask for prefix use "yakovd1", either data in config.json should be changed respectively.
-
-To use cubectl with created AKS cluster:
-```
-az aks get-credentials --name aks-yakovd1-westeurope --resource-group rg-yakovd1-westeurope
-```
-verify the connection: 
-```
-kube ctl gety nodes
-kubectl cluster-info
-```
-
-Do not forget to destroy infrastructure after completing spark job.
+When terraform ask for prefix use "yakovd", either data in src/config.json should be changed respectively.
 
 ## Data
-Put your data to the Azure storage account blob container. Now it can be accessible from pyspark console. Just start pyspark this way:
+After Terraform created resurses we can put our data to the Azure storage account blob container.
+To check access to the data we can use pyspark console this way:
 ```
 pyspark \
   --conf spark.hadoop.fs.azure.account.key.<acc>.dfs.core.windows.net=<key> \
@@ -63,38 +66,118 @@ where:
 **acc** - storage account name,   
 **key** - storage account key.  
 
-You can access the data by such path:  
+We can access the data by such path:  
 ```
 data_path = f"abfs://{container}>@{account}.dfs.core.windows.net"
 ```
+Screenshoot: "screenshots/Spark console check access data Azure storage.jpg"
+
+Remark.
+To simplify local test-run of spark job I use sample data created by src/jobs/_sampling.py script. Sample data has less size but same format as real data.The sample data uploaded to container "m06shortsampledata".
+
+See screenshot at: "screenshots/Azure containers with data.jpg"
+
+## Opencage API using
+Some UDFS uses https://opencagedata.com/ API, to make it work we should register and obtain Opencage API key then assign environment variable (command for linux shell):
+```
+export OPENCAGE_API_KEY="< Opencage API key >"   
+```
+
+## Unit testing
+Do not forget to assign environment variable for OPENCAGE_API_KEY in advance.
+
+Run tests
+```
+pytest src/tests
+```
+See screenshot of results at: "screenshots/unit tests.jpg"
+
+## Local run
+We will run our job localy on shortened sample data which we loaded to Azure storage container "m06shortsampledata"
+For this reason in file src/config.json path to data shoul be changed.
+
+src/config.json string 3,4 in case we use real data:
+```
+"source_data_path": "abfs://m06sparkbasicsa@styakovdwesteurope.dfs.core.windows.net",
+"output_data_path": "abfs://m06sparkbasics@styakovdwesteurope.dfs.core.windows.net/output",
+```
+
+src/config.json string 3,4 in case we use sample data:
+```
+"source_data_path": "abfs://m06shortsampledata@styakovdwesteurope.dfs.core.windows.net",
+"output_data_path": "abfs://m06shortsampledata@styakovdwesteurope.dfs.core.windows.net/output",
+```
+
+Run our job:
+```
+spark-submit \
+  --conf spark.hadoop.fs.azure.account.key.<acc>.dfs.core.windows.net=<key> \
+  --packages org.apache.hadoop:hadoop-azure:3.2.0,com.microsoft.azure:azure-storage:8.6.3 \
+  src/main.py --job job
+```
+where:   
+**acc** - storage account name,   
+**key** - storage account key. 
+
+See screenshot of results at:
+
+"screenshots/Azure container before run.jpg"
+"screenshots/Azure container after run.jpg"
+"screenshots/Azure container after run_parquet.jpg"
+
+
+## AKS
+To use cubectl with AKS cluster created by terraform:
+```
+az aks get-credentials --name aks-yakovd-westeurope --resource-group rg-yakovd-westeurope
+```
+verify the connection: 
+```
+kubectl get nodes
+kubectl cluster-info
+```
+
 
 ## Build
 python3 setup.py build bdist_egg
 
 ## Docker
-Use Azure container registry created by terraform, or 
-create new Azure container registry, login to it:
+We will use Azure container registry.  
+Create new Azure container registry and login to it:
 ```
-az group create --name RG-4ContainerRegistry --location eastus
-az acr create --resource-group RG-4ContainerRegistry \
-  --name dycr1 --sku Basic
+az group create --name rg-CRegistry --location eastus
+az acr create --resource-group rg-CRegistry --name dycr1 --sku Basic
 
 az acr login --name dycr1
 ```
 
 build docker image (option -p is for generating pyspark image):
 ```
-docker-image-tool.sh \
-  -r dycr1.azurecr.io \
-  -t v1 \
-  -p docker/Dockerfile build
+docker-image-tool.sh -r dycr1.azurecr.io -t sparkbasics -p docker/Dockerfile build
 ```
+
+## **At this step I stopped because I have unsolved problem. That is my help request on Teams:**
+https://teams.microsoft.com/l/message/19:cf815fdfafeb4a638ec3b970f587a915@thread.tacv2/1697139361589?tenantId=b41b72d0-4e9f-4c26-8a69-f949f367c91d&groupId=e8cd3e7c-2ef5-4360-af47-ad67149e2749&parentMessageId=1697139361589&teamName=EPAM%20%5BOnlineUA%5D%20Data%20Software%20Engineering%20Cross-Location%20Lab%20%235&channelName=QA&createdTime=1697139361589
+
+.
+
+.
+
+.
+
+.
 
 Push docker image to Azure container
 ```
-docker-image-tool.sh -r dycr1.azurecr.io -t v1 push
+docker-image-tool.sh -r dmytrodec6/dockerhub0repo -t v1 push
 ```
+.
 
+.
+
+.
+
+.
 ## Run Spark job on AKS
 ```
 spark-submit \
