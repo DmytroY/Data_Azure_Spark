@@ -1,6 +1,10 @@
 # Setup azurerm as a state backend
 terraform {
   backend "azurerm" {
+    resource_group_name  = "tf-state-rg"
+    storage_account_name = "sa451"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
   }
 }
 

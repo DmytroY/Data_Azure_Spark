@@ -1,0 +1,6 @@
+{
+  "app_name": "M06_SPARKBASICS_PYTHON_AZURE",
+  "source_data_path": "abfs://m06sparkbasics@styakovdwesteurope.dfs.core.windows.net",
+  "output_data_path": "abfs://m06sparkbasics@styakovdwesteurope.dfs.core.windows.net/output",
+  "storage_account_name": "styakovdwesteurope"
+}

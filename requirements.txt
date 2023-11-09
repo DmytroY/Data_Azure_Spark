@@ -1,5 +1,7 @@
-# cat requirements.txt 
 setuptools>=57.0.0
 pyspark>=3.1.2
-pygeohash>=1.2.0
-requests>=2.25.1
+pytest>=7.4.0
+pytest-spark>=0.6.0
+opencage>=2.3.0
+geohash2>=1.1
+pytest-mock>=3.11.1
