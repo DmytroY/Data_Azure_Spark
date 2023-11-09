@@ -67,10 +67,12 @@ where:
 **key** - storage account key.  
 
 We can access the data by such path:  
-```
-data_path = f"abfs://{container}>@{account}.dfs.core.windows.net"
+`data_path = f"abfs://{container}>@{account}.dfs.core.windows.net"`
 
-[Screenshot. Access check - Pyspark console](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/Spark%20console%20check%20access%20data%20Azure%20storage.jpg)
+
+![Screenshot. Access check - Pyspark console](https://git.epam.com/dmytro_yakovenko1/m06_sparkbasics_python_azure/-/blob/development/screenshots/Spark%20console%20check%20access%20data%20Azure%20storage.jpg)
+
+![Screenshot. Access check - Pyspark console](screenshots/Spark%20console%20check%20access%20data%20Azure%20storage.jpg)
 
 Remark.
 To simplify local test-run of spark job I use sample data created by src/jobs/_sampling.py script. Sample data has less size but same format as real data.The sample data uploaded to container "m06shortsampledata".
