@@ -1,4 +1,4 @@
-# Spark ETL on data in Azure storage
+# Spark ETL with data in Azure
 ## Prerequisites
 Installed latest:   
 - Azure CLI, 
