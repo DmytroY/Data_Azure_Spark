@@ -1,4 +1,4 @@
-# Spark ETL on AKS
+# Spark ETL on data in Azure storage
 ## Prerequisites
 Installed latest:   
 - Azure CLI, 
@@ -7,13 +7,14 @@ Installed latest:
 - spark installed to /opt/spark/
 - setuptools
 
-Login to Azure:
+## Terraform
+We can create our resourses manualy in Azure interface or via Azure CLI, but here I will use Terraform.
+Before run Terraform we should create and provide to Terraform some Azure storage container so Terraform can use it to save it's state.
+Use Azure CLI and login to Azure:
 ```
 az login
 ```
 
-## Terraform   
-Before run Terraform we should create and provide to Terraform some Azure storage container so Terraform can use it to save it's state.
 Create Azure Resource Group and Storage Account, get Storage Account key:
 ```
 az group create --name tf-state-rg \
@@ -55,7 +56,7 @@ terraform apply terraform.plan
 When terraform ask for prefix use "yakovd", either data in src/config.json should be changed respectively.
 
 ## Data
-After Terraform created resurses we can put our data to the Azure storage account blob container.
+After Terraform created resourses we can put our data to the Azure storage account blob container.
 To check access to the data we can use pyspark console this way:
 ```
 pyspark \
@@ -166,28 +167,11 @@ build docker image (option -p is for generating pyspark image):
 docker-image-tool.sh -r dycr1.azurecr.io -t sparkbasics -p docker/Dockerfile build
 ```
 
-## **At this step I stopped because I have unsolved problem. That is my help request on Teams:**
-https://teams.microsoft.com/l/message/19:cf815fdfafeb4a638ec3b970f587a915@thread.tacv2/1697139361589?tenantId=b41b72d0-4e9f-4c26-8a69-f949f367c91d&groupId=e8cd3e7c-2ef5-4360-af47-ad67149e2749&parentMessageId=1697139361589&teamName=EPAM%20%5BOnlineUA%5D%20Data%20Software%20Engineering%20Cross-Location%20Lab%20%235&channelName=QA&createdTime=1697139361589
-
-.
-
-.
-
-.
-
-.
-
 Push docker image to Azure container
 ```
 docker-image-tool.sh -r dmytrodec6/dockerhub0repo -t v1 push
 ```
-.
 
-.
-
-.
-
-.
 ## Run Spark job on AKS
 ```
 spark-submit \
